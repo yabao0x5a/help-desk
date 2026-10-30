@@ -2,6 +2,16 @@ export type TicketStatus = 'open' | 'in_progress' | 'resolved' | 'closed';
 export type TicketPriority = 'low' | 'medium' | 'high' | 'urgent';
 export type TicketCategory = 'bug' | 'feature_request' | 'question' | 'account_issue' | 'other';
 
+export interface CreateTicketData {
+  title: string;
+  description: string;
+  priority: TicketPriority;
+  category: TicketCategory;
+  reporterName: string;
+  reporterEmail: string;
+  assigneeId?: number | null;
+}
+
 export interface User {
   id: number;
   username: string;

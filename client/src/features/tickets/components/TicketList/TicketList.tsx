@@ -25,17 +25,29 @@ export function TicketList() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    const controller = new AbortController()
     const fetchTickets = async () => {
       setLoading(true);
       setError(null);
       try {
-        // 🔴 TODO 1: GET `${API_URL}/tickets` with axios, passing the filters and page as query params
+        // Done 🔴 TODO 1: GET `${API_URL}/tickets` with axios, passing the filters and page as query params
         // (search, status, priority, category, assigneeId, sortBy, sortOrder, page, limit: 10).
         // Then store response.data with setResponse.
+        const result = await axios.get(`${API_URL}/tickets`, {
+          params: {
+            search, status, priority, category, assigneeId, sortBy, sortOrder, page, limit: 10
+          },
+          signal: controller.signal
+        })
+        if (!controller.signal.aborted) {
+          setResponse(result.data)
+        }
       } catch (err: any) {
         setError(err.response?.data?.message || "Failed to fetch tickets");
       } finally {
-        setLoading(false);
+        if (!controller.signal.aborted) {
+          setLoading(false);
+        }
       }
     };
 
@@ -60,6 +72,12 @@ export function TicketList() {
   const handleSearchChange = (value: string) => {
     setSearch(value);
     setPage(1);
+  };
+
+  const handlePageChange = (nextPage: number) => {
+    setPage(nextPage);
+    setError(null)
+    setLoading(true)
   };
 
   return (
@@ -89,33 +107,16 @@ export function TicketList() {
       {!loading && !error && response && (
         <>
           <div className={styles.ticketGrid}>
-            {/* 🔴 TODO 2: if response.data is empty show "No tickets found", otherwise render one TicketCard
+            {/* Done 🔴 TODO 2: if response.data is empty show "No tickets found", otherwise render one TicketCard
                 for each ticket (give it a key and pass the ticket) */}
-            <TicketCard
-              ticket={{
-                id: 1,
-                title: "title",
-                description: "description",
-                status: "open",
-                priority: "urgent",
-                category: "bug",
-                reporterName: "reporter name",
-                reporterEmail: "reporter email",
-                assigneeId: null,
-                slaDeadline: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString(),
-                resolvedAt: null,
-                closedAt: null,
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString(),
-              }}
-            />
+            {response.data.length === 0 ? <>No Tickets found</> : response.data.map((item) => <TicketCard key={item.id} ticket={item} />)}
           </div>
 
           {response.pagination.totalPages > 1 && (
             <div className={styles.pagination}>
-              {/* 🔴 TODO 3: Make Previous go to the previous page and Next go to the next page */}
+              {/* Done 🔴 TODO 3: Make Previous go to the previous page and Next go to the next page */}
               <button
-                onClick={() => {}}
+                onClick={() => handlePageChange(Math.max(1, page - 1))}
                 disabled={page === 1}
                 className={styles.pageButton}
               >
@@ -125,7 +126,7 @@ export function TicketList() {
                 Page {page} of {response.pagination.totalPages}
               </span>
               <button
-                onClick={() => {}}
+                onClick={() => handlePageChange(Math.min(response.pagination.totalPages, page + 1))}
                 disabled={page === response.pagination.totalPages}
                 className={styles.pageButton}
               >

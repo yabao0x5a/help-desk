@@ -1,10 +1,11 @@
 import { useState, useRef, useEffect } from "react";
 import { LoginForm } from "../LoginForm/LoginForm";
 import styles from "./UserBadge.module.css";
+import { useAuth } from "../../context/AuthContext";
 
 export function UserBadge() {
-  // 🔴 Todo: get the user from the auth context.
-  const user = null; //change this line
+  // Done 🔴 Todo: get the user from the auth context.
+  const { user, logout } = useAuth()
 
   // do not edit below this line
   const [open, setOpen] = useState(false);
@@ -41,14 +42,17 @@ export function UserBadge() {
     );
   }
 
-  // 🔴 Todo: display user info if logged in. click logout button to log user out
+  // Done 🔴 Todo: display user info if logged in. click logout button to log user out
   return (
     <div className={styles.userInfo}>
       <div className={styles.userText}>
-        <div className={styles.userName}>display name</div>
-        <div className={styles.userRole}>user role</div>
+        <div className={styles.userName}>{user.displayName}</div>
+        <div className={styles.userRole}>{user.role}</div>
       </div>
-      <button className={styles.logoutButton}>Logout</button>
+      <button className={styles.logoutButton} onClick={() => {
+        setOpen(false)
+        logout()
+      }}>Logout</button>
     </div>
   );
 }
